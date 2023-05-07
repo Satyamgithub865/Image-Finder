@@ -1,23 +1,36 @@
-import logo from './logo.svg';
-import './App.css';
+import { useState, useEffect } from 'react';
+import DisplayImage from './components/DisplayImage';
+import NavBar from './components/NavBar';
+import SearchBar from './components/SearchBar';
+import { getImages } from './services/api';
+import SnackBar from './components/SnackBar';
 
 function App() {
+  const [text, setText] = useState('');
+  const [count, setCount] = useState(9);
+  const [data, setData] = useState([]);
+  const [snackopen, setSnackopen] = useState(false);
+
+  useEffect(() => {
+    if (count < 3 || count > 200) {
+        setSnackopen(true);
+        return;
+    }
+    setSnackopen(false);
+
+    const getData = async () => {
+        const res = await getImages(text, count);
+        setData(res.data.hits);
+    }
+    getData();
+}, [text, count])
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+      <NavBar />
+      <SearchBar setText={setText} setCount={setCount} />
+      <DisplayImage data={data} />
+      <SnackBar snackopen={snackopen} setSnackopen={setSnackopen} />
     </div>
   );
 }
